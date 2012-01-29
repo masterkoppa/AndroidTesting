@@ -133,7 +133,7 @@ public class AndroidGPSActivity extends Activity {
     	}
     	
     	this.lat.setText(tenDig.format(lat) + NorS);
-    	this.log.setText(tenDig.format(lon));
+    	this.log.setText(tenDig.format(lon) + EorW);
     	this.head.setText(Float.toString(head));
     	this.sats.setText(Integer.toString(sats));
     }
