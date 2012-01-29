@@ -41,7 +41,8 @@ public class AndroidGPSActivity extends Activity {
         //Get the location information
         location  = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         
-        setWaiting();//Setup the text for showing the values
+        //Set the intial waiting time, before getting a fix
+        setWaiting();
         
         //The status of the gps, get a new instance from location
         final GpsStatus gps = location.getGpsStatus(null);
@@ -101,7 +102,7 @@ public class AndroidGPSActivity extends Activity {
 
 			@Override
 			public void onProviderEnabled(String provider) {
-				setWaiting(); //Set a nice waiting text on the fields
+				setWaiting(); // Wait till we get a fix
 			}
 
 			@Override
@@ -122,7 +123,9 @@ public class AndroidGPSActivity extends Activity {
     }
     
     protected void onResume(){
+    	//Restart the GPS
     	location.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+    	//Force into a waiting mode
     	setWaiting();
     	super.onResume();
     }
@@ -133,6 +136,18 @@ public class AndroidGPSActivity extends Activity {
     	super.onStop();
     }
     
+    /**
+     * Sets the text for the location found by the GPS/Location
+     * listeners. This function takes care of rounding the numbers
+     * and scaling them down to reasonable numbers, not numbers 10+ digits.
+     * 
+     * Also handles the north/south, east/west appended to the text.
+     * 
+     * @param lat - Latitude
+     * @param lon - Longitude
+     * @param head - The Heading
+     * @param sats - The Number of satelites active
+     */
     public void setLocation(double lat, double lon, float head, int sats){
     	//Do Some Formatting for the numbers
     	DecimalFormat tenDig = new DecimalFormat("##.######");
@@ -168,13 +183,28 @@ public class AndroidGPSActivity extends Activity {
     	}
     }
     
+    /**
+     * Called when the GPS is found disabled.
+     * This also kills the waiting dialog if its
+     * still active.
+     */
     public void setDisabledText(){
     	this.lat.setText("GPS DISABLED");
     	this.log.setText("GPS DISABLED");
     	this.head.setText("GPS DISABLED");
     	this.sats.setText("0");
+    	//Hide the waiting dialog
+    	if(dialog.isShowing()){
+    		dialog.dismiss();
+    	}
     }
     
+    /**
+     * Sets the application in a waiting state. This is called
+     * when the application is waiting on a GPS Fix and
+     * when the application is started/resumed to allow
+     * for the GPS to get a fix.
+     */
     public void setWaiting(){
     	
     	this.showDialog(0);
@@ -185,11 +215,15 @@ public class AndroidGPSActivity extends Activity {
     	this.sats.setText("0");
     }
     
+    
     protected Dialog onCreateDialog(int id){
-	    dialog = new ProgressDialog(this);
+    	//Instantiate the dialog
+    	dialog = new ProgressDialog(this);
 		
+    	//Setup the properties
 		dialog.setTitle("Seaching");
 		dialog.setMessage("Searching for a satelite fix...");
+		//Make the progress bar a circle turning indefinately
 		dialog.setIndeterminate(true);
 		return dialog;
     }
