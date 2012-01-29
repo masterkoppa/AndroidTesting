@@ -16,7 +16,7 @@ public class AndroidGPSActivity extends Activity {
     /** Called when the activity is first created. */
 	private TextView lat;
 	private TextView log;
-	private TextView head;
+	private TextView head; 
 	private TextView sats;
 	
 	LocationManager location;
