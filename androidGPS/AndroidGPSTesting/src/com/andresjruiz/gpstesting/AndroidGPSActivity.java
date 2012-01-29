@@ -5,8 +5,11 @@ import java.util.Iterator;
 import java.util.List;
 
 import android.app.Activity;
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.view.Window;
 import android.widget.TextView;
 import android.hardware.GeomagneticField;
 import android.location.*;
@@ -19,8 +22,11 @@ public class AndroidGPSActivity extends Activity {
 	private TextView head; 
 	private TextView sats;
 	
-	LocationManager location;
-	GeomagneticField compass;
+	private LocationManager location;
+	private LocationListener locationListener;
+	private GeomagneticField compass;
+	
+	private ProgressDialog dialog;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -54,7 +60,7 @@ public class AndroidGPSActivity extends Activity {
 		location.addGpsStatusListener(GpsStatus);
 		
                 
-        LocationListener locationListener = new LocationListener(){
+        locationListener = new LocationListener(){
 			@Override
 			public void onLocationChanged(Location newLocation) {
 				//Get all the values for the information
@@ -105,7 +111,26 @@ public class AndroidGPSActivity extends Activity {
         	
         };
         
-        location.requestLocationUpdates(location.GPS_PROVIDER, 0, 0, locationListener);
+        location.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+    }
+    
+    protected void onPause(){
+    	//Stop application from using the GPS for updates while on
+    	//the background
+    	location.removeUpdates(locationListener);
+    	super.onPause();
+    }
+    
+    protected void onResume(){
+    	location.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+    	setWaiting();
+    	super.onResume();
+    }
+    
+    protected void onStop(){
+    	//Kill the GPS
+    	location.removeUpdates(locationListener);
+    	super.onStop();
     }
     
     public void setLocation(double lat, double lon, float head, int sats){
@@ -136,6 +161,11 @@ public class AndroidGPSActivity extends Activity {
     	this.log.setText(tenDig.format(lon) + EorW);
     	this.head.setText(Float.toString(head));
     	this.sats.setText(Integer.toString(sats));
+    	
+    	//Hide the waiting dialog
+    	if(dialog.isShowing()){
+    		dialog.dismiss();
+    	}
     }
     
     public void setDisabledText(){
@@ -146,9 +176,21 @@ public class AndroidGPSActivity extends Activity {
     }
     
     public void setWaiting(){
-    	this.lat.setText("Searching...");
-    	this.log.setText("Searching...");
-    	this.head.setText("Searching...");
+    	
+    	this.showDialog(0);
+    	
+    	this.lat.setText("");
+    	this.log.setText("");
+    	this.head.setText("");
     	this.sats.setText("0");
+    }
+    
+    protected Dialog onCreateDialog(int id){
+	    dialog = new ProgressDialog(this);
+		
+		dialog.setTitle("Seaching");
+		dialog.setMessage("Searching for a satelite fix...");
+		dialog.setIndeterminate(true);
+		return dialog;
     }
 }
