@@ -22,8 +22,6 @@ public class AndroidGPSActivity extends Activity {
 	LocationManager location;
 	GeomagneticField compass;
 	
-	
-	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -111,9 +109,30 @@ public class AndroidGPSActivity extends Activity {
     }
     
     public void setLocation(double lat, double lon, float head, int sats){
+    	//Do Some Formatting for the numbers
     	DecimalFormat tenDig = new DecimalFormat("##.######");
     	
-    	this.lat.setText(tenDig.format(lat));//Only show 6 digits
+    	//Character that will hold if the position of N or S
+    	char NorS;
+    	
+    	if(lat > 0){
+    		NorS = 'N'; //We are north of the equator
+    	} else{
+    		lat = lat * -1;
+    		NorS = 'S';
+    	}
+    	
+    	//Character that will hold if the position if E or W
+    	char EorW;
+    	
+    	if(lon > 0){
+    		EorW = 'E';
+    	} else{
+    		lon = lon * -1;
+    		EorW = 'W';
+    	}
+    	
+    	this.lat.setText(tenDig.format(lat) + NorS);
     	this.log.setText(tenDig.format(lon));
     	this.head.setText(Float.toString(head));
     	this.sats.setText(Integer.toString(sats));
