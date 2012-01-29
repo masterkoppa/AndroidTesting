@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AndroidGPSTesting</string>
+    <string name="lat">Latitute:</string>
+    <string name="log">Longitude:</string>
+    <string name="head">Heading:</string>
+    <string name="Satelites">GPS Satelites Available</string>
+
+</resources>
